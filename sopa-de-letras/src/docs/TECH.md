@@ -26,7 +26,7 @@ Dependencias Principales:
 ```bash
 sopa-de-letras/
 ├── public/                    # Archivos estáticos
-│   └── favicon.ico            # Icono de la aplicación
+│   └── favicon.ico            # Icono de la aplicación web
 │
 ├── src/                       # Código fuente
 │   ├── assets                 # Imagenes y fuentes
