@@ -11,6 +11,7 @@ Versión 1.0 | Última actualización: [26-abril-2025]
 * Servicios: Casos de uso y validaciones
 
 ## 2. Stack Tecnológico Detallado
+``` bash
 Dependencias Principales:
 "dependencies": {
   "react": "^19.0.0",
@@ -20,80 +21,56 @@ Dependencias Principales:
   "react-slick": "^0.30.3",
   "styled-components": "^6.1.17"
 }
-
+```
 ### Estructura del proyecto
+```bash
 sopa-de-letras/
-├── public/
-│   └── favicon.ico
-|
-├── src/
-│   ├── assets/
-│   |   ├── react.svg
-│   |   ├── sopa1.png
-│   |   ├── sopa2.png
-│   |   ├── sopa3.png
-│   |   ├── sopa4.png
-│   |   ├── sopa5.png
-│   |   ├── sopa6.png
-│   |   ├── sopa7.png
-│   |   ├── sopa8.png
-│   |   └── sopa9.png
-│   ├── components/
-│   │   ├── Footer/
-│   │   │   ├── Footer.jsx
-│   │   │   ├── Footer.module.css
-│   │   │   └── index.js
-│   │   ├── Navbar/
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── Navbar.module.css
-│   │   │   └── index.js
-│   │   └── WordSearch/
-│   │       ├── WordSearchForm.jsx
-│   │       ├── WordSearchForm.module.css
-│   │       ├── WordSearchResults.jsx
-│   │       ├── WordSearchResults.module.css
-│   │       └── index.js
-│   ├── pages/
-│   │   ├── HomePage/
-│   │   │   ├── HomePage.jsx
-│   │   │   ├── HomePage.module.css
-│   │   │   └── index.js
-│   │   ├── ResultsPage/
-│   │   │   ├── ResultsPage.jsx
-│   │   │   ├── ResultsPage.module.css
-│   │   │   └── index.js
-│   │   └── AboutPage/
-│   │       ├── AboutPage.jsx
-│   │       ├── AboutPage.module.css
-│   │       └── index.js
-│   ├── core/
-│   │   ├── domain/
-│   │   │   └── WordSearch.js
-│   │   └── services/
-│   │       └── WordSearchService.js
-│   ├── styles/
-│   │   ├── globals.css
-│   │   └── variables.css
-│   ├── App.jsx
-│   └── main.jsx
-├── docs/
-│   ├── GUIA_USUARIO.docx
-│   └── TECH.md
-├── .gitignore
-├── package.json
-├── README.md
-└── vite.config.js
+├── public/                    # Archivos estáticos
+│   ├── index.html             # Plantilla HTML principal
+│   ├── favicon.ico            # Icono de la aplicación
+│   └── assets/                # Imágenes/fuentes
+│
+├── src/                       # Código fuente
+│   ├── core/                  # Lógica de negocio (Clean Architecture)
+│   │   ├── domain/            # Entidades y modelos
+│   │   │   └── WordSearch.js  # Algoritmo de búsqueda
+│   │   └── services/          # Casos de uso
+│   │       └── WordSearchService.js  
+│   │
+│   ├── infrastructure/        # Adaptadores externos
+│   │   ├── api/               # Llamadas HTTP (si aplica)
+│   │   └── storage/           # Persistencia local
+│   │
+│   ├── presentation/          # Interfaz de usuario
+│   │   ├── components/        # Componentes reutilizables
+│   │   ├── pages/             # Vistas principales
+│   │   └── styles/            # Estilos globales
+│   │
+│   ├── App.jsx                # Componente raíz
+│   └── main.jsx               # Punto de entrada
+│
+├── docs/                      # Documentación
+│   ├── GUIA_USUARIO.docx      # Manual de usuario
+│   └── TECH.md                # Especificaciones técnicas
+│
+├── .gitignore                 # Archivos excluidos de Git
+├── package.json               # Dependencias y scripts
+└── vite.config.js             # Configuración de Vite
+```
 
 ## 3. Algoritmo de Búsqueda
+``` bash
 Complejidad: O(n*m*l) donde:
 * n: Filas de la matriz
 * m: Columnas de la matriz
 * l: Longitud de la palabra
-
+```
 // Ejemplo del núcleo del algoritmo
+```bash
 function searchWord(matrix, word) {
   // Implementación 8 direcciones
 }
+```
 
 ## 4. Flujo de Datos
 ![alt text](flujo.png)
@@ -102,14 +79,18 @@ function searchWord(matrix, word) {
 * Clonar repositorio
 
 * Instalar dependencias:
+``` bash
 npm install
-
+```
 * Ejecutar tests:
+``` bash
 npm test
-
+```
 ## 6. Pruebas Unitarias
+``` bash
 // Ejemplo test con Jest
 test('Encuentra palabra horizontal', () => {
   const matrix = [['A','B','C'], ['D','E','F']];
   expect(searchWord(matrix, 'ABC')).toBeTruthy();
 });
+```
