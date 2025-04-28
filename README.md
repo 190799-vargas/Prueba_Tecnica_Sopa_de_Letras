@@ -146,7 +146,7 @@ const directions = [
 
 ### Instalación Local
 ```bash
-git clone https://github.com/tu-usuario/sopa-de-letras.git
+git clone https://github.com/190799-vargas/Prueba_Tecnica_Sopa_de_Letras.git
 cd sopa-de-letras
 npm install
 ```
