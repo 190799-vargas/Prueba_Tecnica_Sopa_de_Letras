@@ -1,0 +1,113 @@
+.form-container {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 2rem auto;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-textarea {
+    min-height: 150px;
+}
+
+.word-input-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+}
+
+.form-button {
+    background: #4f46e5;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.form-button:hover {
+    background: #4e479b;
+}
+
+.word-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+.word-list-item {
+    display: inline-block;
+    background: #e0e7ff;
+    color: #4f46e5;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.word-remove-button {
+    background: none;
+    border: none;
+    color: #ef4444;
+    margin-left: 0.5rem;
+    cursor: pointer;
+}
+
+.form-submit-button {
+    background: #4f46e5;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    width: 100%;
+}
+
+.form-submit-button:hover {
+    background: #615aa8;
+}
+
+.error-message {
+    color: #ef4444;
+    margin-top: 0.25re;
+    font-size: 0.875rem;
+}
+
+.general-error {
+    background: #fef2f2;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #ef4444;
+}
+
+.input-error {
+    border-color: #ef4444 !important;
+}
+
