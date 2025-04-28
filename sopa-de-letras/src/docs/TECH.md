@@ -26,25 +26,56 @@ Dependencias Principales:
 ```bash
 sopa-de-letras/
 ├── public/                    # Archivos estáticos
-│   ├── index.html             # Plantilla HTML principal
-│   ├── favicon.ico            # Icono de la aplicación
-│   └── assets/                # Imágenes/fuentes
+│   └── favicon.ico            # Icono de la aplicación
 │
 ├── src/                       # Código fuente
+│   ├── assets                 # Imagenes y fuentes
+│   |   ├── react.svg
+│   |   ├── sopa1.png
+│   |   ├── sopa2.png
+│   |   ├── sopa3.png
+│   |   ├── sopa4.png
+│   |   ├── sopa5.png
+│   |   ├── sopa6.png
+│   |   ├── sopa7.png
+│   |   ├── sopa8.png
+│   |   └── sopa9.png
 │   ├── core/                  # Lógica de negocio (Clean Architecture)
 │   │   ├── domain/            # Entidades y modelos
 │   │   │   └── WordSearch.js  # Algoritmo de búsqueda
 │   │   └── services/          # Casos de uso
 │   │       └── WordSearchService.js  
 │   │
-│   ├── infrastructure/        # Adaptadores externos
-│   │   ├── api/               # Llamadas HTTP (si aplica)
-│   │   └── storage/           # Persistencia local
 │   │
 │   ├── presentation/          # Interfaz de usuario
 │   │   ├── components/        # Componentes reutilizables
+│   │   |    ├── Footer/             # Pie de  pagina
+|   |   |    |    ├── Footer.jsx
+│   │   |    |    └── Footer.module.css
+│   │   |    ├── Navbar/             # Barra de navegacion
+|   |   |    |    ├── Navbar.css
+│   │   |    |    └── Navbar.jsx
+│   │   |    ├── WordSearchForm/     # Formulario principal
+|   |   |    |    ├── WordSearchForm.css
+│   │   |    |    └── WordSearchForm.jsx
+│   │   |    └── WordSearchResults/  # Vista resultados
+|   |   |    |    ├── WordSearchResults.css
+│   │   |    |    └── WordSearchResults.jsx
 │   │   ├── pages/             # Vistas principales
+│   │   |    ├── AboutPage/    # Acerca de
+|   |   |    |    ├── AboutPage.css
+│   │   |    |    └── AboutPage.jsx
+│   │   |    ├── EditSeachPage/     # Pagina de edicion
+|   |   |    |    ├── EditSeachPage.css
+│   │   |    |    └── EditSeachPage.jsx
+│   │   |    ├── HomePage/     # Pagina principal
+|   |   |    |    ├── HomePage.css
+│   │   |    |    └── HomePage.jsx
+│   │   |    ├── ResultsPage/  # Pagina de resultados
+|   |   |    |    ├── ResultsPage.css
+│   │   |    |    └── ResultsPage.jsx
 │   │   └── styles/            # Estilos globales
+│   │   |    └──global.css     # Archivo de estilos
 │   │
 │   ├── App.jsx                # Componente raíz
 │   └── main.jsx               # Punto de entrada
@@ -55,6 +86,7 @@ sopa-de-letras/
 │
 ├── .gitignore                 # Archivos excluidos de Git
 ├── package.json               # Dependencias y scripts
+├── README.md                  # Documentacion 
 └── vite.config.js             # Configuración de Vite
 ```
 
