@@ -174,10 +174,9 @@ export const WordSearchForm = ({ onSubmit }) => {
                             setErrors({ ...errors, matrix: '' });
                         }}
                         placeholder={
-                            `Ejemplo para 14x14:\nA,B,C,D,E,F,G,H,I,J,K,L,M,N\nA,B,C,D,E,F,G,H,I,J,K,L,M,N\n` +
-                            `\nEjemplo para 16x16:\nA,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P\nA,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P
-                            `
-                            
+                            matrixSize === "14"
+                                ? `Ejemplo para 14x14:\nA,B,C,D,E,F,G,H,I,J,K,L,M,N\nA,B,C,D,E,F,G,H,I,J,K,L,M,N\n`
+                                : `Ejemplo para 16x16:\nA,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P\nA,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P\n`
                         }
                         rows={matrixSize}
                         className={`form-textarea ${errors.matrix ? 'input-error' : ''}`}
