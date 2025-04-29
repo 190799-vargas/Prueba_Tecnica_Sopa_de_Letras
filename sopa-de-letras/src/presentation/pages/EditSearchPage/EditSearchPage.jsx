@@ -7,6 +7,8 @@ export const EditSearchPage = () => {
     const {state} = useLocation();
     const navigate = useNavigate();
 
+    // Estado para almacenar los datos del formulario
+    // y los errores de validación
     const [formData, setFormData] = useState({
         size: '14',
         newWord: '',
@@ -19,6 +21,8 @@ export const EditSearchPage = () => {
 
     // Cargar datos iniciales
     useEffect(() => {
+        // Cargar datos del estado
+        // Si no hay estado, redirigir a la página de resultados
         if (state) {
             setFormData({
                 size: state.matrix?.length.toString() || '14',

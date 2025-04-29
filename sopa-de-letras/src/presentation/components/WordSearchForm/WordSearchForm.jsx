@@ -5,7 +5,7 @@ import "./WordSearchForm.css";
 export const WordSearchForm = ({ onSubmit }) => {
     const [words, setWords] = useState("");
     const [matrix, setMatrix] = useState("");
-    const [matrixSize, setMatrixSize] = useState("14");
+    const [matrixSize, setMatrixSize] = useState("16");
     const [wordList, setWordList] = useState([]);
     const [errors, setErrors] = useState({
         words: '',
@@ -91,10 +91,12 @@ export const WordSearchForm = ({ onSubmit }) => {
             return;
         }
 
+        // Verificar si hay errores en la matriz
         const matrixArray = matrix.split("\n")
             .filter(row => row.trim())
             .map(row => row.split(",").map(cell => cell.trim().toUpperCase()));
 
+        // Verificar si la matriz tiene el tamaño correcto
         onSubmit(matrixArray, wordList);
         setErrors({ words: '', matrix: '', general: '' });
     };
@@ -171,7 +173,12 @@ export const WordSearchForm = ({ onSubmit }) => {
                             setMatrix(e.target.value.toUpperCase());
                             setErrors({ ...errors, matrix: '' });
                         }}
-                        placeholder={`Ejemplo para 14x14::\nA,B,C,D,E,F,G,H,I,J,K,L,M,N\nA,B,C,D,E,F,G,H,I,J,K,L,M,N`}
+                        placeholder={
+                            `Ejemplo para 14x14:\nA,B,C,D,E,F,G,H,I,J,K,L,M,N\nA,B,C,D,E,F,G,H,I,J,K,L,M,N\n` +
+                            `\nEjemplo para 16x16:\nA,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P\nA,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P
+                            `
+                            
+                        }
                         rows={matrixSize}
                         className={`form-textarea ${errors.matrix ? 'input-error' : ''}`}
                     />

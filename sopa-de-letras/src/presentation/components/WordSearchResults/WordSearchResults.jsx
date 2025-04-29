@@ -5,7 +5,7 @@ import "./WordSearchResults.css";
 export const WordSearchResults = ({ results, matrix, words, onRemoveWord, onBack, onEdit }) => {
     const navigate = useNavigate();
 
-    if (!results || results.length === 0) return null;
+    if (!results || results.length === 0) return null; 
 
     // Renderizamos la matriz
     const renderMatrix = () => {
