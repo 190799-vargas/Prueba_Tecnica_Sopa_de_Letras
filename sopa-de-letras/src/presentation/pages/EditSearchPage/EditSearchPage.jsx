@@ -4,187 +4,283 @@ import { WordSearchService } from "../../../core/services/WordSearchService";
 import "./EditSearchPage.css";
 
 export const EditSearchPage = () => {
-    const {state} = useLocation();
+    const { state } = useLocation();
     const navigate = useNavigate();
 
-    // Estado para almacenar los datos del formulario
-    // y los errores de validación
+    // Estado inicial seguro con valores por defecto
     const [formData, setFormData] = useState({
         size: '14',
         newWord: '',
         words: [],
         matrix: []
-        
     });
+    
     const [matrixInput, setMatrixInput] = useState('');
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState({
+        newWord: '',
+        words: '',
+        matrix: ''
+    });
 
-    // Cargar datos iniciales
+    // Cargar datos iniciales con validación segura
     useEffect(() => {
-        // Cargar datos del estado
-        // Si no hay estado, redirigir a la página de resultados
         if (state) {
+            const safeMatrix = Array.isArray(state.matrix) ? state.matrix : [];
+            const safeWords = Array.isArray(state.words) ? state.words : [];
+            
             setFormData({
-                size: state.matrix?.length.toString() || '14',
-                words: state.words || [],
-                matrix: state.matrix || []
+                size: safeMatrix.length?.toString() || '14',
+                words: safeWords,
+                matrix: safeMatrix
             });
-            setMatrixInput(
-                state.matrix?.map(row => row.join(',')).join('\n') || ''
-            );
+            
+            // Convertir matriz a string con protección contra undefined/null
+            const matrixString = safeMatrix
+                .map(row => Array.isArray(row) ? row.join(',') : '')
+                .join('\n') || '';
+                
+            setMatrixInput(matrixString);
         }
     }, [state]);
 
-    // Manejar agregar palabra
-    const handleAddWord = () => {
-        const word = formData.newWord.trim().toUpperCase();
-        if (!word) return;
+    // Validación en tiempo real para nueva palabra
+    useEffect(() => {
+        const word = (formData.newWord || '').trim().toUpperCase();
+        
+        if (!word) {
+            setErrors(prev => ({ ...prev, newWord: '' }));
+            return;
+        }
 
-        if (!/^[A-ZÁÉÍÓÚÜÑ]+$/.test(word)) {
-            setErrors({...errors, words: "Solo letras MAYÚSCULAS"});
+        const validationRules = [
+            {
+                condition: !/^[A-ZÁÉÍÓÚÜÑ]+$/.test(word), 
+                message: "Solo letras MAYÚSCULAS" 
+            },
+            {
+                condition: word.length < 3,
+                message: "Mínimo 3 letras"
+            },
+            { 
+                condition: word.length > 15, 
+                message: "Máximo 15 letras" 
+            },
+            { 
+                condition: formData.words.includes(word), 
+                message: "Palabra ya existe" 
+            }
+        ];
+
+        const error = validationRules.find(rule => rule.condition)?.message || '';
+        setErrors(prev => ({ ...prev, newWord: error }));
+    }, [formData.newWord, formData.words]);
+
+    // Validación en tiempo real para la matriz con protección completa
+    useEffect(() => {
+        if (typeof matrixInput !== 'string') {
+            setMatrixInput('');
             return;
         }
-        if (word.length < 3 || word.length > 15) {
-            setErrors({
-                ...errors,
-                words: "La palabra debe tener entre 3 y 15 letras.",
-            });
+
+        const trimmedInput = matrixInput.trim();
+        
+        if (!trimmedInput) {
+            setErrors(prev => ({ ...prev, matrix: '' }));
             return;
         }
-        if (word.length >= 15){
-            setErrors({
-                ...errors,
-                words: "La palabra no puede tener más de 15 letras.",
-            });
+
+        const rows = trimmedInput.split('\n')
+            .filter(row => row && typeof row === 'string' && row.trim());
+            
+        const size = parseInt(formData.size) || 14;
+        let matrixError = '';
+
+        // Validar estructura de la matriz
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const cells = row.split(',')
+                .map(cell => typeof cell === 'string' ? cell.trim() : '')
+                .filter(Boolean);
+
+            if (cells.length > size) {
+                matrixError = `Fila ${i+1}: máximo ${size} columnas`;
+                break;
+            }
+
+            for (let j = 0; j < cells.length; j++) {
+                if (!/^[A-ZÁÉÍÓÚÜÑ]$/.test(cells[j])) {
+                    matrixError = `Fila ${i+1}, Col ${j+1}: Solo MAYÚSCULAS (A-Z, Á-Ú, Ü, Ñ)`;
+                    break;
+                }
+            }
+            
+            if (matrixError) break;
+        }
+
+        setErrors(prev => ({ ...prev, matrix: matrixError }));
+    }, [matrixInput, formData.size]);
+
+    // Manejar agregar palabra con validación
+    const handleAddWord = () => {
+        const word = (formData.newWord || '').trim().toUpperCase();
+        
+        if (!word || errors.newWord) {
             return;
         }
-        if (formData.words.includes(word)) {
-            setErrors({ ...errors, words: "La palabra ya fue agregada." });
-            return;
-        }
-        setFormData({
-            ...formData,
-            words: [...formData.words, word],
+
+        setFormData(prev => ({
+            ...prev,
+            words: [...prev.words, word],
             newWord: ''
-        });
-        setErrors({...errors, words: ''});
+        }));
     };
 
     // Manejar eliminar palabra
     const handleRemoveWord = (index) => {
-        const newWords = [...formData.words];
-        newWords.splice(index, 1);
-        setFormData({...formData, words: newWords});
-    };
-
-    // Manejar cambio en matriz
-    const handleMatrixChange = (e) => {
-        setMatrixInput(e.target.value.toUpperCase());
-        setErrors({...errors, matrix: ''});
-    };
-    
-    // Validar formulario
-    const validateForm = () => {
-        const newErrors = {};
-
-    // Validar palabras
-    if (formData.words.length === 0) {
-        newErrors.words = 'Ingrese al menos una palabra';
-    }
-    
-    // Validar matriz
-    const rows = matrixInput.split('\n').filter(row => row.trim());
-    if (rows.length === 0) {
-        newErrors.matrix = 'Ingrese la matriz de caracteres';
-    } else {
-        const size = parseInt(formData.size);
-        if (rows.length !== size) {
-            newErrors.matrix = `Debe tener exactamente ${size} filas`;
-        }
-        
-        rows.forEach((row, i) => {
-            const cells = row.split(',').map(cell => cell.trim());
-            if (cells.length !== size) {
-                newErrors.matrix = `Fila ${i + 1} debe tener ${size} columnas`;
-            }
-        
-            cells.forEach((cell, j) => {
-                if (!/^[A-ZÁÉÍÓÚÜÑ]$/.test(cell)) {
-                    newErrors.matrix = `Fila ${i + 1}, Columna ${j + 1}: Solo letras MAYÚSCULAS`;
-                }
-            });
+        setFormData(prev => {
+            const newWords = [...prev.words];
+            newWords.splice(index, 1);
+            return { ...prev, words: newWords };
         });
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
     };
 
-    // Renderizar matriz con palabras resaltadas
-    const renderMatrix = () => {
-        if (!formData.matrix || formData.matrix.length === 0) return null;
-
-    // Obtener ubicaciones de palabras encontradas
-    const service = new WordSearchService();
-    const currentResults = service.execute(formData.matrix, formData.words);
-    const highlightedCells = new Set();
+    // Manejar cambio en matriz con protección
+    const handleMatrixChange = (e) => {
+        const value = e.target?.value || '';
+        setMatrixInput(typeof value === 'string' ? value.toUpperCase() : '');
+    };
     
-    currentResults.forEach(result => {
-        if (result.found) {
-            result.locations.forEach(loc => {
-                loc.path.forEach(pos => {
-                    highlightedCells.add(`${pos.row},${pos.col}`);
-                });
-            });
-        }
-    });
+    // Validación completa del formulario al enviar
+    const validateForm = () => {
+        const newErrors = {
+            newWord: '',
+            words: formData.words.length === 0 ? 'Ingrese al menos una palabra' : '',
+            matrix: ''
+        };
 
-    return (
-        <div className="matrix-preview">
-            <h3>Vista Previa de la Matriz</h3>
-            <div className="matrix-grid">
-            {formData.matrix.map((row, rowIndex) => (
-                <div key={`row-${rowIndex}`} className="matrix-row">
-                {row.map((cell, colIndex) => (
-                    <div
-                    key={`cell-${rowIndex}-${colIndex}`}
-                    className={`matrix-cell ${
-                        highlightedCells.has(`${rowIndex},${colIndex}`) ? 'highlighted' : ''
-                    }`}
-                    >
-                    {cell}
-                    </div>
-                ))}
+        // Validación robusta de la matriz
+        const rows = (matrixInput || '')
+            .split('\n')
+            .filter(row => row && typeof row === 'string' && row.trim());
+            
+        if (rows.length === 0) {
+            newErrors.matrix = 'Ingrese la matriz de caracteres';
+        } else {
+            const size = parseInt(formData.size) || 14;
+            
+            if (rows.length !== size) {
+                newErrors.matrix = `Debe tener exactamente ${size} filas`;
+            } else {
+                for (let i = 0; i < rows.length; i++) {
+                    const cells = rows[i]
+                        .split(',')
+                        .map(cell => typeof cell === 'string' ? cell.trim() : '')
+                        .filter(Boolean);
+
+                    if (cells.length !== size) {
+                        newErrors.matrix = `Fila ${i + 1} debe tener ${size} columnas`;
+                        break;
+                    }
+
+                    for (let j = 0; j < cells.length; j++) {
+                        if (!/^[A-ZÁÉÍÓÚÜÑ]$/.test(cells[j])) {
+                            newErrors.matrix = `Fila ${i + 1}, Col ${j + 1}: Solo MAYÚSCULAS (A-Z, Á-Ú, Ü, Ñ)`;
+                            break;
+                        }
+                    }
+                    
+                    if (newErrors.matrix) break;
+                }
+            }
+        }
+
+        setErrors(newErrors);
+        return !newErrors.words && !newErrors.matrix;
+    };
+
+    // Renderizar matriz con protección completa
+    const renderMatrix = () => {
+        if (!Array.isArray(formData.matrix)) {
+            return null;
+        }
+
+        const service = new WordSearchService();
+        const currentResults = service.execute(formData.matrix, formData.words);
+        const highlightedCells = new Set();
+        
+        currentResults.forEach(result => {
+            if (result?.found && Array.isArray(result.locations)) {
+                result.locations.forEach(loc => {
+                    if (Array.isArray(loc?.path)) {
+                        loc.path.forEach(pos => {
+                            if (typeof pos.row === 'number' && typeof pos.col === 'number') {
+                                highlightedCells.add(`${pos.row},${pos.col}`);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        return (
+            <div className="matrix-preview">
+                <h3>Vista Previa de la Matriz</h3>
+                <div className="matrix-grid">
+                    {formData.matrix.map((row, rowIndex) => (
+                        <div key={`row-${rowIndex}`} className="matrix-row">
+                            {(Array.isArray(row) ? row : []).map((cell, colIndex) => (
+                                <div
+                                    key={`cell-${rowIndex}-${colIndex}`}
+                                    className={`matrix-cell ${
+                                        highlightedCells.has(`${rowIndex},${colIndex}`) ? 'highlighted' : ''
+                                    }`}
+                                >
+                                    {typeof cell === 'string' ? cell : ''}
+                                </div>
+                            ))}
+                        </div>
+                    ))}
                 </div>
-            ))}
             </div>
-        </div>
         );
     };
 
-    // Enviar formulario
+    // Enviar formulario con validación final
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        if (!validateForm()) return;
+        if (!validateForm()) {
+            return;
+        }
         
-        // Procesar matriz
-        const matrix = matrixInput
-        .split('\n')
-        .map(row => row.split(',').map(cell => cell.trim().toUpperCase()));
+        // Procesamiento seguro de la matriz
+        const matrix = (matrixInput || '')
+            .split('\n')
+            .filter(row => row && typeof row === 'string')
+            .map(row => row
+                .split(',')
+                .map(cell => (cell || '').trim().toUpperCase())
+                .filter(cell => /^[A-ZÁÉÍÓÚÜÑ]$/.test(cell))
+            .filter(row => row.length > 0));
 
-        // Ejecutar búsqueda
+        const size = parseInt(formData.size) || 14;
+        
+        // Validación final del tamaño
+        if (matrix.length !== size || matrix.some(row => row.length !== size)) {
+            setErrors(prev => ({ ...prev, matrix: `La matriz debe ser exactamente ${size}x${size}` }));
+            return;
+        }
+
+        // Ejecutar búsqueda y navegar
         const service = new WordSearchService();
         const results = service.execute(matrix, formData.words);
         
-        // Actualizar estado y navegar
-        setFormData({...formData, matrix});
         navigate('/results', {
-        state: {
-            results,
-            matrix,
-            words: formData.words
-        }
+            state: {
+                results,
+                matrix,
+                words: formData.words
+            }
         });
     };
 
@@ -199,38 +295,47 @@ export const EditSearchPage = () => {
                     <div className="word-input-group">
                         <input
                             type="text"
-                            value={formData.newWord}
+                            value={formData.newWord || ''}
                             onChange={(e) => setFormData({
                                 ...formData,
-                                newWord: e.target.value.toUpperCase()
+                                newWord: typeof e.target.value === 'string' ? e.target.value : ''
                             })}
                             onKeyUp={(e) => e.key === 'Enter' && handleAddWord()}
                             placeholder="Nueva palabra (MAYÚSCULAS)"
-                            className="word-input"
+                            className={`word-input ${errors.newWord ? 'error' : ''}`}
+                            maxLength={15}
                         />
                         <button
                             type="button"
                             onClick={handleAddWord}
                             className="add-word-button"
+                            disabled={!!errors.newWord || !formData.newWord?.trim()}
                         >
                             Agregar
                         </button>
                     </div>
                 
-                    {errors.words && <div className="error-message">{errors.words}</div>}
+                    {errors.newWord && (
+                        <div className="error-message">{errors.newWord}</div>
+                    )}
+                    
+                    {errors.words && (
+                        <div className="error-message">{errors.words}</div>
+                    )}
                 
                     <div className="word-list">
                         {formData.words.map((word, index) => (
-                        <div key={index} className="word-tag">
-                            {word}
-                            <button
-                                type="button"
-                                onClick={() => handleRemoveWord(index)}
-                                className="remove-word-button"
+                            <div key={index} className="word-tag">
+                                {typeof word === 'string' ? word : ''}
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveWord(index)}
+                                    className="remove-word-button"
+                                    aria-label={`Eliminar palabra ${word}`}
                                 >
-                                    x
-                            </button>
-                        </div>
+                                    ×
+                                </button>
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -242,9 +347,12 @@ export const EditSearchPage = () => {
                         <label>Tamaño de la matriz:</label>
                         <select
                             value={formData.size}
-                            onChange={(e) => setFormData({...formData, size: e.target.value})}
+                            onChange={(e) => setFormData({
+                                ...formData, 
+                                size: e.target.value
+                            })}
                             className="size-selector"
-                            >
+                        >
                             <option value="14">14×14</option>
                             <option value="16">16×16</option>
                         </select>
@@ -254,18 +362,31 @@ export const EditSearchPage = () => {
                         value={matrixInput}
                         onChange={handleMatrixChange}
                         className={`matrix-textarea ${errors.matrix ? 'error' : ''}`}
-                        rows={parseInt(formData.size)}
-                        placeholder={`Ejemplo para ${formData.size}x${formData.size}:\nA,B,C,...\nD,E,F,...`}
+                        rows={parseInt(formData.size) || 14}
+                        placeholder={`Ingrese ${formData.size}x${formData.size} caracteres separados por comas`}
+                        spellCheck="false"
                     />
-                    {errors.matrix && <div className="error-message">{errors.matrix}</div>}
+                    
+                    {errors.matrix && (
+                        <div className="error-message">{errors.matrix}</div>
+                    )}
                     
                     {renderMatrix()}
                 </div>
 
                 <div className="form-actions">
-                    <button type="submit" className="submit-button">
+                    <button 
+                        type="submit" 
+                        className="submit-button"
+                        disabled={
+                            formData.words.length === 0 || 
+                            !!errors.matrix || 
+                            !matrixInput.trim()
+                        }
+                    >
                         Actualizar Búsqueda
                     </button>
+                    
                     <button
                         type="button"
                         className="cancel-button"

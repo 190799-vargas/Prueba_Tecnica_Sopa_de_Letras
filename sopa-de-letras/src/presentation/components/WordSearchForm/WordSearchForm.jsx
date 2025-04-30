@@ -1,5 +1,5 @@
 // Formulario para ingresar palabras y tamaño de la matriz
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./WordSearchForm.css";
 
 export const WordSearchForm = ({ onSubmit }) => {
@@ -13,8 +13,30 @@ export const WordSearchForm = ({ onSubmit }) => {
         general: ''
     });
 
+    // Validaciones en tiempo real para el campo de palabras
+    // Se ejecuta cada vez que cambia el valor de "words"
+    // Si hay un error de validación, se actualiza el estado de "errors"
+    // Si no hay error, se limpia el mensaje de error
+    useEffect(() => {
+        if (words.trim()) {
+            const validationError = validateWord(words);
+            setErrors(prev => ({ ...prev, words: validationError }));
+        } else {
+            setErrors(prev => ({ ...prev, words: '' }));
+        }
+    }, [words]);
+
+    // Validaciones en tiempo real para el campo de matriz
+    useEffect(() => {
+        if (matrix.trim()) {
+            const validationError = validateMatrix(matrix);
+            setErrors(prev => ({ ...prev, matrix: validationError }));
+        } else {
+            setErrors(prev => ({ ...prev, matrix: '' }));
+        }
+    }, [matrix, matrixSize]);
+
     const validateWord = (word) => {
-        if (!word.trim()) return "La lista de palabras no puede estar vacía.";
         if (/[a-z]/.test(word)) return "Solo se permiten letras MAYUSCULAS";
         if(!/^[A-Z]+$/.test(word)) return "Solo letras de A-Z sin espacios ni caracteres especiales";
         if(word.length < 3) return "La palabra debe tener al menos 3 letras";
@@ -28,18 +50,18 @@ export const WordSearchForm = ({ onSubmit }) => {
     const validateMatrix = (matrix) => {
         const rows = matrix.split("\n").filter(row => row.trim());
 
-        if (rows.length === 0) return "La matriz no puede estar vacía.";
+        if (rows.length === 0) return "";
 
         const size = parseInt(matrixSize);
-        if (rows.length !== size) {
-            return `La matriz debe tener exactamente ${size} filas`;
+        if (rows.length > size) {
+            return `La matriz no puede tener más de ${size} filas`;
         }
 
         for (let i = 0; i < rows.length; i++) {
             const cells = rows[i].split(',').map(cell => cell.trim());
             
-            if (cells.length !== size) {
-                return `Fila ${i + 1}: debe tener ${size} columnas`;
+            if (cells.length > size) {
+                return `Fila ${i + 1}: no puede tener más de ${size} columnas`;
             }
 
             for (let j = 0; j < cells.length; j++) {
@@ -57,9 +79,10 @@ export const WordSearchForm = ({ onSubmit }) => {
 
     // Metodo para agregar una palabra a la lista
     const handleAddWord = () => {
-        const validationError = validateWord(words);
-        if (validationError) {
-            setErrors({ ...errors, words: validationError });
+        if (errors.words) return;
+        
+        if (!words.trim()) {
+            setErrors({ ...errors, words: "La palabra no puede estar vacía." });
             return;
         }
 
@@ -80,25 +103,25 @@ export const WordSearchForm = ({ onSubmit }) => {
         e.preventDefault();
         
         if (wordList.length === 0) {
-            setErrors({ ...errors, words: "La lista de palabras no puede estar vacía." });
+            setErrors({ ...errors, words: "Debe agregar al menos una palabra." });
+            return;
+        }
+
+        const finalMatrixValidation = validateMatrix(matrix);
+        if (finalMatrixValidation || !matrix.trim()) {
+            setErrors({ 
+                ...errors, 
+                matrix: finalMatrixValidation || "La matriz no puede estar vacía." 
+            });
             return;
         }
 
         // Convertir la matriz de texto a un array
-        const matrixError = validateMatrix(matrix);
-        if (matrixError) {
-            setErrors({ ...errors, matrix: matrixError, general: '' });
-            return;
-        }
-
-        // Verificar si hay errores en la matriz
         const matrixArray = matrix.split("\n")
             .filter(row => row.trim())
             .map(row => row.split(",").map(cell => cell.trim().toUpperCase()));
 
-        // Verificar si la matriz tiene el tamaño correcto
         onSubmit(matrixArray, wordList);
-        setErrors({ words: '', matrix: '', general: '' });
     };
 
     return (
@@ -127,10 +150,7 @@ export const WordSearchForm = ({ onSubmit }) => {
                         <input
                             type="text"
                             value={words}
-                            onChange={(e) => {
-                                setWords(e.target.value.toUpperCase());
-                                setErrors({ ...errors, words: '' });
-                            }}
+                            onChange={(e) => setWords(e.target.value.toUpperCase())}
                             placeholder="Ingrese palabra en MAYÚSCULAS"
                             className={`form-input ${errors.words ? 'input-error': ''}`}
                         />
@@ -138,6 +158,7 @@ export const WordSearchForm = ({ onSubmit }) => {
                             type="button"
                             onClick={handleAddWord}
                             className="form-button"
+                            disabled={!!errors.words || !words.trim()}
                         >
                             Agregar
                         </button>
@@ -169,10 +190,7 @@ export const WordSearchForm = ({ onSubmit }) => {
                     <label>Matriz de caracteres (MAYÚSCULAS, separar filas con Enter y columnas por comas):</label>
                     <textarea
                         value={matrix}
-                        onChange={(e) => {
-                            setMatrix(e.target.value.toUpperCase());
-                            setErrors({ ...errors, matrix: '' });
-                        }}
+                        onChange={(e) => setMatrix(e.target.value.toUpperCase())}
                         placeholder={
                             matrixSize === "14"
                                 ? `Ejemplo para 14x14:\nA,B,C,D,E,F,G,H,I,J,K,L,M,N\nA,B,C,D,E,F,G,H,I,J,K,L,M,N\n`
@@ -188,7 +206,11 @@ export const WordSearchForm = ({ onSubmit }) => {
                     )}
                 </div>
 
-                <button type="submit" className="form-submit-button">
+                <button 
+                    type="submit" 
+                    className="form-submit-button"
+                    disabled={wordList.length === 0 || !!errors.matrix || !matrix.trim()}
+                >
                     Buscar Palabras
                 </button>
             </form>
